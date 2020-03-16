@@ -8,11 +8,11 @@ These events though, are simple D-Bus events, and don't actually run anything.
 You need some form of wrapper to listen to these events, and run you screen
 lockers, etc.
 
-That's where this app comes in.  This simple app changes the interface
+That's where this app comes in.  This simple app translates the interface
 presented: it handles the ``lock`` and ``sleep`` events, and starts the
 ``lock.target`` ``sleep.target`` systemd targets respectively.
 
-Note that systemd already have a ``sleep.target``, however, that's a
+Note that systemd already has a ``sleep.target``, however, that's a
 system-level target, and your user-level units can't rely on it. The one
 included in this package does not conflict, but rather compliments that one.
 
@@ -49,7 +49,7 @@ Steps if you'll be using ``lock.target``
 ----------------------------------------
 
 * Enable this service
-  ``systemctl --user enable -- nowsystemd-lock-handler.service``.
+  ``systemctl --user enable --now systemd-lock-handler.service``.
 * Edit ``/etc/systemd/logind.conf`` and set ``HandleLidSwitch=lock``. By
   default, logind has the insane behaviour of suspending on lid close. This
   makes it merely emit a lock event.
@@ -58,7 +58,7 @@ Steps if you'll be using ``sleep.target``
 -----------------------------------------
 
 * Enable this service
-  ``systemctl --user enable -- nowsystemd-lock-handler.service``.
+  ``systemctl --user enable --now systemd-lock-handler.service``.
 
 LICENCE
 -------
