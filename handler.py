@@ -45,16 +45,26 @@ def main():
     try:
         cli = yield client.connect(reactor, 'system')
 
+        seat = yield cli.getRemoteObject(
+            'org.freedesktop.login1',
+            '/org/freedesktop/login1/seat/self',
+        )
+        _seat_id, session_path = yield seat.callRemote(
+            "Get",
+            "org.freedesktop.login1.Seat",
+            "ActiveSession",
+        )
+
         lock_obj = yield cli.getRemoteObject(
             'org.freedesktop.login1',
-            '/org/freedesktop/login1/session/c1',
+            session_path,
         )
+        lock_obj.notifyOnSignal('Lock', onLock)
+
         sleep_obj = yield cli.getRemoteObject(
             'org.freedesktop.login1',
             '/org/freedesktop/login1',
         )
-
-        lock_obj.notifyOnSignal('Lock', onLock)
         sleep_obj.notifyOnSignal('PrepareForSleep', onSleep)
 
         logger.info("Ready and waiting for events.")
