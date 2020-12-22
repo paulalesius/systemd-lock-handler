@@ -1,16 +1,20 @@
 systemd-lock-handler
 ====================
 
-Logind (part of systemd) can be configured to emit events on in response to the
-lid being closed, sleeping, the power button being pressed, etc.
+``logind`` (part of systemd) emits events when the system is lock or goes into
+sleep.
 
 These events though, are simple D-Bus events, and don't actually run anything.
-You need some form of wrapper to listen to these events, and run you screen
-lockers, etc.
+There are no facilities to easily _run_ anything on these events either (e.g.:
+a screen locker).
 
-That's where this app comes in.  This simple app translates the interface
-presented: it handles the ``lock`` and ``sleep`` events, and starts the
-``lock.target`` ``sleep.target`` systemd targets respectively.
+This application fills this gap.
+
+When the system is either locked, or about to go into sleep, this service will
+start the ``lock.target`` ``sleep.target`` systemd targets respectively.
+
+You can then have any of your own services (including screen lockers and other
+one-shot commands) run when this event is activated.
 
 Note that systemd already has a ``sleep.target``, however, that's a
 system-level target, and your user-level units can't rely on it. The one
@@ -48,17 +52,14 @@ Keep in mind that, for this to work a few steps need to be taken:
 Steps if you'll be using ``lock.target``
 ----------------------------------------
 
-* Enable this service
-  ``systemctl --user enable --now systemd-lock-handler.service``.
-* Edit ``/etc/systemd/logind.conf`` and set ``HandleLidSwitch=lock``. By
-  default, logind has the insane behaviour of suspending on lid close. This
-  makes it merely emit a lock event.
+* Enable this service ``systemctl --user enable --now systemd-lock-handler.service``.
+* Lock your session using ``loginctl lock-session``.
 
 Steps if you'll be using ``sleep.target``
 -----------------------------------------
 
-* Enable this service
-  ``systemctl --user enable --now systemd-lock-handler.service``.
+* Enable this service ``systemctl --user enable --now systemd-lock-handler.service``.
+* Sleep your device using ``systemctl suspend``.
 
 LICENCE
 -------
