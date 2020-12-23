@@ -47,7 +47,9 @@ def main():
 
         seat = yield cli.getRemoteObject(
             'org.freedesktop.login1',
-            '/org/freedesktop/login1/seat/self',
+            # When running as a systemd service /self is apparently not present.
+            # We use /seat0 instead, but this may not really work in multiseat systems.
+            '/org/freedesktop/login1/seat/seat0',
         )
         _seat_id, session_path = yield seat.callRemote(
             "Get",
