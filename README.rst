@@ -23,12 +23,22 @@ included in this package does not conflict, but rather compliments that one.
 Installation
 ------------
 
-* Download the latest release_.
-* ``tar xf v1.0.0``
-* ``cd systemd-lock-handler-1.0.0/``
+On ArchLinux
+............
+
+A package is available in the AUR:
+
+``paru -S systemd-lock-handler``
+
+Other platforms
+...............
+
+* Download the latest source_.
+* ``tar xf systemd-lock-handler-master.tar.gz``
+* ``cd systemd-lock-handler-master/``
 * ``sudo make install``
 
-.. _release: https://github.com/WhyNotHugo/systemd-lock-handler/releases
+.. _source: https://gitlab.com/WhyNotHugo/systemd-lock-handler/-/archive/master/systemd-lock-handler-master.tar.gz
 
 Usage
 -----
