@@ -4,7 +4,7 @@ PREFIX=/usr
 
 install:
 	@install -Dm755 handler.py \
-	  ${DESTDIR}${PREFIX}/bin/systemd-lock-handler
+	  ${DESTDIR}${PREFIX}/lib/systemd-lock-handler
 	@install -Dm644 systemd-lock-handler.service \
 	  ${DESTDIR}${PREFIX}/lib/systemd/user/systemd-lock-handler.service
 	@install -Dm644 lock.target \
