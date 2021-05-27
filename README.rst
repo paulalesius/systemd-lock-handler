@@ -28,17 +28,17 @@ On ArchLinux
 
 A package is available in the AUR:
 
-``paru -S systemd-lock-handler``
+    paru -S systemd-lock-handler
 
 Other platforms
 ...............
 
-* Download the latest source_.
-* ``tar xf systemd-lock-handler-master.tar.gz``
-* ``cd systemd-lock-handler-master/``
-* ``sudo make install``
+You can manually build and install:
 
-.. _source: https://gitlab.com/WhyNotHugo/systemd-lock-handler/-/archive/master/systemd-lock-handler-master.tar.gz
+    git@git.sr.ht:~whynothugo/systemd-lock-handler
+    cd systemd-lock-handler
+    make build
+    sudo make install
 
 Usage
 -----
