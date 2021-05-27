@@ -1,9 +1,10 @@
 DESTDIR?=/
 PREFIX=/usr
 
+systemd-lock-handler:
+	go build -ldflags '-s'
 
 build: systemd-lock-handler
-	go install -ldflags '-s'
 
 install: build
 	@install -Dm755 systemd-lock-handler \
@@ -16,3 +17,5 @@ install: build
 	  ${DESTDIR}${PREFIX}/lib/systemd/user/unlock.target
 	@install -Dm644 sleep.target \
 	  ${DESTDIR}${PREFIX}/lib/systemd/user/sleep.target
+
+.PHONY: build install
