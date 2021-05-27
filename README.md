@@ -1,7 +1,7 @@
 systemd-lock-handler
 ====================
 
-``logind`` (part of systemd) emits events when the system is lock or goes into
+`logind` (part of systemd) emits events when the system is lock or goes into
 sleep.
 
 These events though, are simple D-Bus events, and don't actually run anything.
@@ -11,27 +11,25 @@ a screen locker).
 This application fills this gap.
 
 When the system is either locked, or about to go into sleep, this service will
-start the ``lock.target`` ``sleep.target`` systemd targets respectively.
+start the `lock.target` `sleep.target` systemd targets respectively.
 
 You can then have any of your own services (including screen lockers and other
 one-shot commands) run when this event is activated.
 
-Note that systemd already has a ``sleep.target``, however, that's a
+Note that systemd already has a `sleep.target`, however, that's a
 system-level target, and your user-level units can't rely on it. The one
 included in this package does not conflict, but rather compliments that one.
 
 Installation
 ------------
 
-On ArchLinux
-............
+## On ArchLinux
 
 A package is available in the AUR:
 
     paru -S systemd-lock-handler
 
-Other platforms
-...............
+## Other platforms
 
 You can manually build and install:
 
@@ -44,7 +42,7 @@ Usage
 -----
 
 You should service files for anything you intend to intend to run on lock. For
-example, ``enabling`` this service file would run ``slock``::
+example, `enabling` this service file would run `slock`:
 
     [Unit]
     Description=A simple X screen locker
@@ -56,20 +54,25 @@ example, ``enabling`` this service file would run ``slock``::
 
     [Install]
     WantedBy=lock.target
+    WantedBy=sleep.target
 
-Keep in mind that, for this to work a few steps need to be taken:
+You'll also need to enable and start this service:
 
-Steps if you'll be using ``lock.target``
-----------------------------------------
+    systemctl --user enable --now systemd-lock-handler.service
 
-* Enable this service ``systemctl --user enable --now systemd-lock-handler.service``.
-* Lock your session using ``loginctl lock-session``.
+## Locking
 
-Steps if you'll be using ``sleep.target``
------------------------------------------
+Lock your session using `loginctl lock-session`.
 
-* Enable this service ``systemctl --user enable --now systemd-lock-handler.service``.
-* Sleep your device using ``systemctl suspend``.
+This will mark your session as locked, and start `lock.target` along with any
+services that are `WantedBy` it.
+
+## Suspending
+
+Sleep your device using `systemctl suspend`.
+
+This will start `sleep.target` along with any services that are `WantedBy` it.
+This will happen _before_ the system is suspended.
 
 LICENCE
 -------
