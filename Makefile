@@ -2,8 +2,11 @@ DESTDIR?=/
 PREFIX=/usr
 
 
-install:
-	@install -Dm755 handler.py \
+build: systemd-lock-handler
+	go install -ldflags '-s'
+
+install: build
+	@install -Dm755 systemd-lock-handler \
 	  ${DESTDIR}${PREFIX}/lib/systemd-lock-handler
 	@install -Dm644 systemd-lock-handler.service \
 	  ${DESTDIR}${PREFIX}/lib/systemd/user/systemd-lock-handler.service
