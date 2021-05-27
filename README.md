@@ -11,7 +11,7 @@ a screen locker).
 This application fills this gap.
 
 When the system is either locked, or about to go into sleep, this service will
-start the `lock.target` `sleep.target` systemd targets respectively.
+start the `lock.target` and `sleep.target` systemd targets respectively.
 
 You can then have any of your own services (including screen lockers and other
 one-shot commands) run when this event is activated.
@@ -50,6 +50,8 @@ example, `enabling` this service file would run `slock`:
 
     [Service]
     ExecStart=/usr/bin/slock
+    # Explicitly run `unlock.target` when locker exits. This stops
+    # `lock.target`, and other units that are wanted by it.
     ExecStopPost=/usr/bin/systemctl --user start unlock.target
 
     [Install]
