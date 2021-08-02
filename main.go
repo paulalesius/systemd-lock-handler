@@ -47,13 +47,11 @@ func ListenForSleep() {
 
 	c := make(chan *dbus.Signal, 10)
 	conn.Signal(c)
-	for range c {
+	for {
+		<- c
 		fmt.Printf("> System is going to sleep.\n")
 		StartSystemdUserUnit("sleep.target")
 	}
-
-	// This never returns.
-	panic("Unreachable")
 }
 
 func ListenForLock(user *user.User) {
