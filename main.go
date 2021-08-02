@@ -99,6 +99,8 @@ func ListenForLock(user *user.User) {
 }
 
 func main() {
+	log.SetFlags(log.Lshortfile)
+
 	user, err := user.Current()
 	if err != nil {
 		log.Fatalln("Failed to get username:", err)
