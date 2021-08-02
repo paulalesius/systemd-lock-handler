@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"log"
 	"os/user"
 
 	"github.com/godbus/dbus/v5"
 )
 
-func StartSystemdUserUnit(unitName string) {
+func StartSystemdUserUnit(unitName string) error {
 	conn, err := dbus.ConnectSessionBus()
 	if err != nil {
 		panic(err)
@@ -16,22 +16,20 @@ func StartSystemdUserUnit(unitName string) {
 	defer conn.Close()
 
 	obj := conn.Object("org.freedesktop.systemd1", "/org/freedesktop/systemd1")
-	call := obj.Call("org.freedesktop.systemd1.Manager.StartUnit", 0, unitName, "replace")
 
+	call := obj.Call("org.freedesktop.systemd1.Manager.StartUnit", 0, unitName, "replace")
 	if call.Err != nil {
-		// FIXME: Don't panic!
-		panic(call.Err)
+		return fmt.Errorf("failed to start unit: %v", call.Err)
 	}
 
-	fmt.Printf(">> Started %v.\n", unitName)
+	log.Println("Started unit: ", unitName)
+	return nil
 }
 
 func ListenForSleep() {
-	// Listen for going-to-sleep signal.
-
 	conn, err := dbus.ConnectSystemBus()
 	if err != nil {
-		panic(err)
+		log.Fatalln("Could not connect to the system D-Bus", err)
 	}
 	defer conn.Close()
 
@@ -41,25 +39,26 @@ func ListenForSleep() {
 		dbus.WithMatchMember("PrepareForSleep"),
 	)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		panic(err)
+		log.Fatalln("Failed to listen for sleep signals", err)
 	}
 
 	c := make(chan *dbus.Signal, 10)
 	conn.Signal(c)
 	for {
-		<- c
-		fmt.Printf("> System is going to sleep.\n")
-		StartSystemdUserUnit("sleep.target")
+		<-c
+		log.Println("The system is going to sleep")
+
+		err = StartSystemdUserUnit("sleep.target")
+		if err != nil {
+			log.Println("Error starting sleep.target:", err)
+		}
 	}
 }
 
 func ListenForLock(user *user.User) {
-	// Listen for lock signals.
-
 	conn, err := dbus.ConnectSystemBus()
 	if err != nil {
-		panic(err)
+		log.Fatalln("Could not connect to the system D-Bus", err)
 	}
 	defer conn.Close()
 
@@ -69,39 +68,42 @@ func ListenForLock(user *user.User) {
 		dbus.WithMatchMember("Lock"),
 	)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		panic(err)
+		log.Fatalln("Failed to listen for lock signals", err)
 	}
 
 	c := make(chan *dbus.Signal, 10)
 	conn.Signal(c)
-	for v := range c {
-		// Check that the locked session is for the current user.
+	for {
+		v := <-c
 
+		// Get the locked session...
 		obj := conn.Object("org.freedesktop.login1", v.Path)
 
 		name, err := obj.GetProperty("org.freedesktop.login1.Session.Name")
 		if err != nil {
-			panic(err)
+			log.Println("WARNING: Could not obtain details for locked session:", err)
+			continue
 		}
 
-		if name.Value() == user.Username {
-			fmt.Printf("> Session locked for current user.\n")
-			StartSystemdUserUnit("lock.target")
+		// ... And check that it belongs to the current user:
+		if name.Value() != user.Username {
+			continue
+		}
+		log.Println("Session locked for current user.")
+
+		err = StartSystemdUserUnit("lock.target")
+		if err != nil {
+			log.Println("Error starting lock.target:", err)
 		}
 	}
-
-	// This never returns.
-	panic("Unreachable")
 }
 
 func main() {
 	user, err := user.Current()
 	if err != nil {
-		fmt.Printf("Failed to get username: %s\n", err)
-		os.Exit(-1)
+		log.Fatalln("Failed to get username:", err)
 	}
-	fmt.Printf("Running for user %v.\n", user.Username)
+	log.Println("Running for user:", user.Username)
 
 	go ListenForSleep()
 	go ListenForLock(user)
