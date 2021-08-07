@@ -4,6 +4,7 @@ Documentation=https://sr.ht/~whynothugo/systemd-lock-handler
 
 [Service]
 ExecStart=/usr/lib/systemd-lock-handler
+Type=notify
 
 [Install]
 WantedBy=default.target
