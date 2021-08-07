@@ -1,24 +1,24 @@
 systemd-lock-handler
 ====================
 
-`logind` (part of systemd) emits events when the system is lock or goes into
+`logind` (part of systemd) emits events when the system is locked or goes into
 sleep.
 
-These events though, are simple D-Bus events, and don't actually run anything.
+These events however, are simple D-Bus events, and don't actually run anything.
 There are no facilities to easily _run_ anything on these events either (e.g.:
 a screen locker).
 
-This application fills this gap.
+`systemd-lock-handler` application fills this gap.
 
 When the system is either locked, or about to go into sleep, this service will
-start the `lock.target` and `sleep.target` systemd targets respectively.
+start the `lock.target` and `sleep.target` systemd user targets respectively.
 
 You can then have any of your own services (including screen lockers and other
 one-shot commands) run when this event is activated.
 
-Note that systemd already has a `sleep.target`, however, that's a
-system-level target, and your user-level units can't rely on it. The one
-included in this package does not conflict, but rather compliments that one.
+Note that systemd already has a `sleep.target`, however, that's a system-level
+target, and your user-level units can't rely on it. The one included in this
+package does not conflict, but rather compliments that one.
 
 Installation
 ------------
@@ -46,7 +46,8 @@ example, `enabling` this service file would run `slock`:
 
     [Unit]
     Description=A simple X screen locker
-    Requisite=xorg.target
+    Requisite=xorg.target  # Optional, non-standard
+    PartOf=lock.target  # Stop this unit if lock.target is stopped.
 
     [Service]
     ExecStart=/usr/bin/slock
