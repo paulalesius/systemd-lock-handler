@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os/user"
+	"strings"
 
 	"github.com/coreos/go-systemd/v22/daemon"
 	systemd "github.com/coreos/go-systemd/v22/dbus"
@@ -74,12 +75,32 @@ func ListenForLock(user *user.User) {
 		log.Fatalln("Failed to listen for lock signals", err)
 	}
 
+	err = conn.AddMatchSignal(
+		dbus.WithMatchInterface("org.freedesktop.login1.Session"),
+		dbus.WithMatchSender("org.freedesktop.login1"),
+		dbus.WithMatchMember("Unlock"),
+	)
+	if err != nil {
+		log.Fatalln("Failed to listen for unlock signals", err)
+	}
+
 	c := make(chan *dbus.Signal, 10)
 	go func() {
 		for {
 			v := <-c
 
-			// Get the locked session...
+			var target string
+			signalName := v.Name
+			if strings.HasSuffix(signalName, "Lock") {
+				target = "lock.target"
+			} else if strings.HasSuffix(signalName, "Unlock") {
+				target = "unlock.target"
+			} else {
+				log.Println("Got an unknown event!", v)
+				continue
+			}
+
+			// Get the (un)locked session...
 			obj := conn.Object("org.freedesktop.login1", v.Path)
 
 			name, err := obj.GetProperty("org.freedesktop.login1.Session.Name")
@@ -94,9 +115,9 @@ func ListenForLock(user *user.User) {
 			}
 			log.Println("Session locked for current user.")
 
-			err = StartSystemdUserUnit("lock.target")
+			err = StartSystemdUserUnit(target)
 			if err != nil {
-				log.Println("Error starting lock.target:", err)
+				log.Println("Error starting target:", target, err)
 			}
 		}
 	}()

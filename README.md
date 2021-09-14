@@ -51,9 +51,8 @@ example, `enabling` this service file would run `slock`:
 
     [Service]
     ExecStart=/usr/bin/slock
-    # Explicitly run `unlock.target` when locker exits. This stops
-    # `lock.target`, and other units that are wanted by it.
-    ExecStopPost=/usr/bin/systemctl --user start unlock.target
+    # Unlock the session when the screen locker exit:
+    ExecStopPost=/usr/bin/loginctl unlock-session
 
     [Install]
     WantedBy=lock.target
