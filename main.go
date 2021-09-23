@@ -113,7 +113,7 @@ func ListenForLock(user *user.User) {
 			if name.Value() != user.Username {
 				continue
 			}
-			log.Println("Session locked for current user.")
+			log.Println("Session signal for current user: {}.", signalName)
 
 			err = StartSystemdUserUnit(target)
 			if err != nil {
