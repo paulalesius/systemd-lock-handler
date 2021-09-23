@@ -100,6 +100,36 @@ Sleep your device using `systemctl suspend`.
 This will start `sleep.target` along with any services that are `WantedBy` it.
 This will happen _before_ the system is suspended.
 
+Changelog
+---------
+
+## 2.2.0
+
+- Also handle unlock events (and translate those to unlock.target).
+
+## 2.1.0
+
+- Minor bugfixes.
+- Run as `Type=notify`.
+
+## 2.0.0
+
+- Rewrite in go.
+- Move binary into /usr/lib.
+
+## 1.1.0
+
+- Use newer logind API.
+- Events for other sessions are now correctly ignored.
+
+## 1.0.0
+
+Also handle sleep target.
+
+## 0.1.0
+
+Initial release.
+
 LICENCE
 -------
 
