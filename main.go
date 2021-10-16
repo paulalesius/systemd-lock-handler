@@ -33,6 +33,8 @@ func ListenForSleep() {
 		log.Fatalln("Could not connect to the system D-Bus", err)
 	}
 
+	// TODO: Should I also stop `sleep.target` after the system comes back
+	// from sleeping? (`lock.target` will continue running anyway).
 	err = conn.AddMatchSignal(
 		dbus.WithMatchObjectPath("/org/freedesktop/login1"),
 		dbus.WithMatchInterface("org.freedesktop.login1.Manager"),

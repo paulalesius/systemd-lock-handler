@@ -69,12 +69,18 @@ For example, `enabling` this service file would run `slock`:
 
     [Install]
     WantedBy=lock.target
-    WantedBy=sleep.target
 
 Specifying `PartOf=lock.target` indicates to systemd that this service should
 be stopped if `lock.target` is stopped. This is even more important for
 services that _aren't_ the screen locker, since this setting means they'll get
 stopped when the system is unlocked.
+
+Specifying `WantedBy=lock.target` will have this service run when locking
+**or** sleeping the system.
+
+Specifying `WantedBy=sleep.target` will have this service run only when
+sleeping the system. Note that the service will continue running after
+waking up from sleep.
 
 ## Locking
 
@@ -102,6 +108,14 @@ This will happen _before_ the system is suspended.
 
 Changelog
 ---------
+
+## 2.3.0
+
+- `sleep.target` now requires `lock.target` itself. So for any services that
+  should be started when either locking or suspending the system, specifying
+  `WantedBy=lock.target` is enough.
+- Fixed a bug where lock some services wouldn't be stopped after waking up
+  and then unlocking a system.
 
 ## 2.2.0
 
