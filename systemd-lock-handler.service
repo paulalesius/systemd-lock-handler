@@ -3,6 +3,7 @@ Description=Logind lock event to systemd target translation
 Documentation=https://sr.ht/~whynothugo/systemd-lock-handler
 
 [Service]
+Slice=session.slice
 ExecStart=/usr/lib/systemd-lock-handler
 Type=notify
 
