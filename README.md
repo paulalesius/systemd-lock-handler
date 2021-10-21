@@ -1,6 +1,8 @@
 systemd-lock-handler
 ====================
 
+[![builds.sr.ht status](https://builds.sr.ht/~whynothugo/systemd-lock-handler/commits/.build.yml.svg)](https://builds.sr.ht/~whynothugo/systemd-lock-handler/commits/.build.yml?)
+
 `logind` (part of systemd) emits events when the system is locked, unlocked or
 goes into sleep.
 
