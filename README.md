@@ -111,6 +111,15 @@ This will happen _before_ the system is suspended.
 Changelog
 ---------
 
+## 2.4.0
+
+- Sleeping will be now inhibited when `systemd-lock-handler` starts. This
+  ensure that there is enough time to react before the system actually goes to
+  sleep. See [this article] for some background on how this all works and
+  upcoming changes.
+
+[this article]: https://whynothugo.nl/journal/2022/10/26/systemd-locking-and-sleeping/
+
 ## 2.3.0
 
 - `sleep.target` now requires `lock.target` itself. So for any services that

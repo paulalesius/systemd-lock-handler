@@ -9,6 +9,7 @@ import (
 
 	"github.com/coreos/go-systemd/v22/daemon"
 	systemd "github.com/coreos/go-systemd/v22/dbus"
+	"github.com/coreos/go-systemd/v22/login1"
 	"github.com/godbus/dbus/v5"
 )
 
@@ -45,9 +46,19 @@ func ListenForSleep() {
 	}
 
 	c := make(chan *dbus.Signal, 10)
+	logind, err := login1.New()
+	if err != nil {
+		log.Fatalln("Failed to connect to logind")
+	}
 
 	go func() {
 		for {
+			// We need to inhibit sleeping so we have time to execute our actions before the system sleeps.
+			lock, err := logind.Inhibit("sleep", "systemd-lock-handler", "Start pre-sleep target", "delay")
+			if err != nil {
+				log.Fatalln("Failed to grab sleep inhibitor lock", err)
+			}
+			log.Println("Got lock on sleep inhibitor")
 			<-c
 			log.Println("The system is going to sleep")
 
@@ -55,6 +66,8 @@ func ListenForSleep() {
 			if err != nil {
 				log.Println("Error starting sleep.target:", err)
 			}
+			// Uninhibit sleeping. I.e.: let the system actually go to sleep.
+			lock.Close()
 		}
 	}()
 
