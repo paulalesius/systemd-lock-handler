@@ -57,17 +57,24 @@ The service itself must be enabled for the current user:
 Additionally, service files must be created and enabled for any service that
 should start when the system is locked.
 
-For example, `enabling` this service file would run `slock`:
+For example, `enabling` this service file would run `swaylock` when `logind`
+locks the session and before the system goes to sleep:
 
     [Unit]
-    Description=A simple X screen locker
-    Requisite=graphical-session.target
+    Description=Screen locker for Wayland
+    # If swaylock exits cleanly, unlock the session:
+    OnSuccess=unlock.target
+    # When lock.target is stopped, stops this too:
     PartOf=lock.target
+    # Delay lock.target until this service is ready:
+    After=lock.target
 
     [Service]
-    ExecStart=/usr/bin/slock
-    # Unlock the session when the screen locker exit:
-    ExecStopPost=/usr/bin/loginctl unlock-session
+    # systemd will consider this service started when swaylock forks...
+    Type=forking
+    # ... and swaylock will fork only after it has locked the screen.
+    ExecStart=/usr/bin/swaylock -f
+    Restart=on-failure
 
     [Install]
     WantedBy=lock.target
@@ -115,8 +122,7 @@ Changelog
 
 - Sleeping will be now inhibited when `systemd-lock-handler` starts. This
   ensure that there is enough time to react before the system actually goes to
-  sleep. See [this article] for some background on how this all works and
-  upcoming changes.
+  sleep. See [this article] for some background on how this.
 
 [this article]: https://whynothugo.nl/journal/2022/10/26/systemd-locking-and-sleeping/
 

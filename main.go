@@ -13,18 +13,27 @@ import (
 	"github.com/godbus/dbus/v5"
 )
 
+// Starts a systemd unit and blocks until the job is completed.
 func StartSystemdUserUnit(unitName string) error {
 	conn, err := systemd.NewUserConnectionContext(context.Background())
 	if err != nil {
 		return fmt.Errorf("failed to connect to systemd user session: %v", err)
 	}
 
+	ch := make(chan string, 1)
+
 	_, err = conn.StartUnitContext(context.Background(), unitName, "replace", nil)
 	if err != nil {
 		return fmt.Errorf("failed to start unit: %v", err)
 	}
 
-	log.Println("Started systemd unit:", unitName)
+	result := <-ch
+	if result == "done" {
+		log.Println("Started systemd unit:", unitName)
+	} else {
+		return fmt.Errorf("failed to start unit %v: %v", unitName, result)
+	}
+
 	return nil
 }
 
