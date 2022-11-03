@@ -122,7 +122,9 @@ Changelog
 
 - Sleeping will be now inhibited when `systemd-lock-handler` starts. This
   ensure that there is enough time to react before the system actually goes to
-  sleep. See [this article] for some background on how this.
+  sleep. See [this article] for some background on how this. See also the
+  updated example in the README to ensure that your screen locker has actually
+  locked the screen before sleeping continues.
 
 [this article]: https://whynothugo.nl/journal/2022/10/26/systemd-locking-and-sleeping/
 
